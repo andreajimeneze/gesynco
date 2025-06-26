@@ -1,12 +1,21 @@
 import express from 'express';
-import userRoutes from './routes/userRoutes.js';
-import sequelize from './models/index.js';
+import authRoutes from './routes/authRoutes.js';
+import newsRoutes from './routes/newsRoutes.js';
+import teamRoutes from './routes/teamRoutes.js';
+import clientRoutes from './routes/clientRoutes.js';
+import { sequelize } from './models/index.js';
+import cors from 'cors';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 
-app.use( '/api/users', userRoutes);
+app.use( '/api', authRoutes );
+app.use( '/api/news', newsRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/clients', clientRoutes);
 
 const PORT = process.env.PORT || 3000;
 
@@ -19,3 +28,5 @@ app.listen(PORT, async () => {
         console.log('Error al conectar a la base de datos');
     }
 })
+
+export default app;

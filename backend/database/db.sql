@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nombre VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     contrasenia VARCHAR(255) NOT NULL,
-    rol VARCHAR(255) NOT NULLSSS
+    rol VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS noticias (
@@ -24,18 +24,12 @@ CREATE TABLE IF NOT EXISTS miembros_equipo (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     apellido VARCHAR(255) NOT NULL,
-    rut VARCHAR(255) UNIQUE,
-    telefono VARCHAR(255),
     email VARCHAR(255) NOT NULL,
     profesion VARCHAR(255) NOT NULL,
-    universidad VARCHAR(255),
     experiencia VARCHAR(400),
     foto VARCHAR(255),
     estado VARCHAR(255) NOT NULL
 );
-
-CREATE DATABASE IF NOT EXISTS negociacion;
-USE negociacion;
 
 CREATE TABLE IF NOT EXISTS clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,

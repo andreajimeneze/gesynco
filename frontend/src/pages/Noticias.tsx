@@ -1,103 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, User, ArrowRight, /*Tag,*/ Search } from 'lucide-react';
 
-const Blog = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [searchTerm, setSearchTerm] = useState('');
+const Noticias = () => {
+  const [news, setNews] = useState([]);
 
-  const categories = ['Todos', 'Negociación Colectiva', 'Derecho Laboral', 'Economía Laboral', 'Comunicación Sindical', 'Tributario'];
+  
 
-  const blogPosts = [
-    {
-      id: 1,
-      title: 'Nuevas Tendencias en Negociación Colectiva 2024',
-      excerpt: 'Análisis de las principales tendencias y cambios normativos que están impactando las negociaciones colectivas en Chile durante este año.',
-      author: 'María Elena Rodríguez',
-      date: '15 de Enero, 2024',
-      category: 'Negociación Colectiva',
-      image: 'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '5 min lectura'
-    },
-    {
-      id: 2,
-      title: 'Fuero Sindical: Protección y Alcances Legales',
-      excerpt: 'Guía completa sobre el fuero sindical en Chile, sus alcances, limitaciones y cómo ejercer efectivamente esta protección legal.',
-      author: 'Ana Patricia Vega',
-      date: '10 de Enero, 2024',
-      category: 'Derecho Laboral',
-      image: 'https://images.pexels.com/photos/8116943/pexels-photo-8116943.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '7 min lectura'
-    },
-    {
-      id: 3,
-      title: 'Análisis Económico en Negociaciones: Cómo Fundamentar Propuestas',
-      excerpt: 'Métodos y herramientas para realizar análisis económicos sólidos que respalden las propuestas salariales en negociaciones colectivas.',
-      author: 'Carlos Mendoza Silva',
-      date: '8 de Enero, 2024',
-      category: 'Economía Laboral',
-      image: 'https://images.pexels.com/photos/590041/pexels-photo-590041.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '6 min lectura'
-    },
-    {
-      id: 4,
-      title: 'Estrategias de Comunicación Durante Conflictos Laborales',
-      excerpt: 'Cómo manejar la comunicación pública y medios durante conflictos laborales para mantener el apoyo de la opinión pública.',
-      author: 'Roberto Fernández Castro',
-      date: '5 de Enero, 2024',
-      category: 'Comunicación Sindical',
-      image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '4 min lectura'
-    },
-    {
-      id: 5,
-      title: 'Beneficios Tributarios para Trabajadores: Guía 2024',
-      excerpt: 'Actualización sobre los beneficios tributarios disponibles para trabajadores y cómo optimizar la planificación fiscal personal.',
-      author: 'Susana Morales Díaz',
-      date: '3 de Enero, 2024',
-      category: 'Tributario',
-      image: 'https://images.pexels.com/photos/6863183/pexels-photo-6863183.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '8 min lectura'
-    },
-    {
-      id: 6,
-      title: 'Técnicas Avanzadas de Negociación para Dirigentes Sindicales',
-      excerpt: 'Herramientas psicológicas y técnicas de negociación que todo dirigente sindical debe conocer para maximizar resultados.',
-      author: 'Diego Herrera Ruiz',
-      date: '1 de Enero, 2024',
-      category: 'Negociación Colectiva',
-      image: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '10 min lectura'
-    },
-    {
-      id: 7,
-      title: 'Prácticas Antisindicales: Identificación y Defensa Legal',
-      excerpt: 'Cómo identificar y actuar legalmente ante prácticas antisindicales por parte de empleadores.',
-      author: 'Ana Patricia Vega',
-      date: '28 de Diciembre, 2023',
-      category: 'Derecho Laboral',
-      image: 'https://images.pexels.com/photos/5668772/pexels-photo-5668772.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '6 min lectura'
-    },
-    {
-      id: 8,
-      title: 'Impacto de la Inflación en Negociaciones Salariales',
-      excerpt: 'Análisis del impacto inflacionario en el poder adquisitivo y estrategias para negociar aumentos reales.',
-      author: 'Carlos Mendoza Silva',
-      date: '25 de Diciembre, 2023',
-      category: 'Economía Laboral',
-      image: 'https://images.pexels.com/photos/3483098/pexels-photo-3483098.jpeg?auto=compress&cs=tinysrgb&w=600',
-      readTime: '5 min lectura'
-    }
-  ];
 
-  const filteredPosts = blogPosts.filter(post => {
-    const matchesCategory = selectedCategory === 'Todos' || post.category === selectedCategory;
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
 
-  const featuredPost = blogPosts[0];
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
