@@ -19,7 +19,7 @@ const Team = () => {
       try {
         const res = await fetch('http://localhost:3000/api/team');
         const data = await res.json();
-        console.log(data);
+     
         setTeam(data.data);
       } catch(error) {
         console.error('Error al obtener al equipo', error);
@@ -28,7 +28,6 @@ const Team = () => {
     fetchData();
   }, []);
 
-  console.log('fuera de useEffect', team);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}

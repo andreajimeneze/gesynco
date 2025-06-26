@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Scale, Users } from 'lucide-react';
+import { Menu, X, Scale } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,7 +11,7 @@ const Header = () => {
     { name: 'Servicios', href: '/servicios' },
     { name: 'Equipo', href: '/equipo' },
     { name: 'Clientes', href: '/clientes' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'Noticias', href: '/noticias' },
     { name: 'Contacto', href: '/contacto' },
   ];
 
