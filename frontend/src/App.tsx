@@ -7,6 +7,11 @@ import Team from './pages/Team';
 import Clients from './pages/Clients';
 import Noticias from './pages/Noticias';
 import Contact from './pages/Contact';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import MembersTable from './components/MembersTable';
+import NewsTable from './components/NewsTable';
+import ClientsTable from './components/ClientsTable';
 
 function App() {
   return (
@@ -21,6 +26,11 @@ function App() {
             <Route path="/clientes" element={<Clients />} />
             <Route path="/noticias" element={<Noticias />} />
             <Route path="/contacto" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard-equipo" element={<MembersTable />} />
+            <Route path="/dashboard-noticias" element={<NewsTable />} />
+            <Route path="/dashboard-clientes" element={<ClientsTable />} />
           </Routes>
         </main>
         <Footer />

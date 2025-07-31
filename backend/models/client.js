@@ -7,10 +7,19 @@ export const Client = (sequelize, DataTypes) => {
         locality: DataTypes.STRING,
         telefono: DataTypes.STRING,
         email: DataTypes.STRING,
-        logo: DataTypes.STRING
+        logo: DataTypes.STRING,
+        numeroMiembros: DataTypes.INTEGER,
+        testimonio: DataTypes.STRING
     }, {
         tableName: 'clientes',
         timestamps: false
     })
+
+     Client.associate = (models) => {
+    Client.hasMany(models.Negotiation, {
+      foreignKey: 'cliente_id'
+    });
+  };
+
     return Client;
 }

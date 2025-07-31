@@ -31,6 +31,7 @@ export const createNews = async (req, res) => {
   const { text, resume, title, slug, url_image } = req.body;
   const currentDate = new Date();
   try {
+         
     const newNews = await NewsModel.create({
       titulo: title,
       resumen: resume,
@@ -38,7 +39,7 @@ export const createNews = async (req, res) => {
       slug,
       fecha_publicacion: currentDate,
       fecha_edicion: null,
-      url_imagen: url_image,
+      url_imagen: req.file ? `/images/news/${req.file?.filename}` : null
     });
     res
       .status(201)
@@ -58,7 +59,7 @@ export const editNews = async (req, res) => {
     const existingNews = await NewsModel.findByPk(id);
 
     if (existingNews) {
-      const editedNews = await existingNews.update({
+      const updatedFields = await existingNews.update({
         titulo: existingNews.title || title,
         resumen: existingNews.resume || resume,
         texto: existingNews.text || text,
@@ -68,6 +69,11 @@ export const editNews = async (req, res) => {
         fecha_edicion: currentDate,
       });
 
+      if(req.file) {
+        updatedFields.url_imagen = `/images/news/${req.file?.filename}`;
+      }
+
+      const editedNews = await existingNews.update(updatedFields);
       return res
         .status(201)
         .json({ message: "Noticia editada correctamente", data: editedNews });

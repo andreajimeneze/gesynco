@@ -1,12 +1,14 @@
 import express from 'express';
 const router = express.Router();
 import { getNews, getOneNews, createNews, editNews, deleteNews } from "../controllers/NewsController.js";
+import { createUploadMiddleware } from '../middlewares/multer.js';
 
+const uploadNews = createUploadMiddleware('news');
 
 router.get('/', getNews);
 router.get('/:id', getOneNews);
-router.post('/create', createNews);
+router.post('/create', uploadNews.single('imagen'), createNews);
 router.put('/edit/:id', editNews);
-router.delete('/delete/:id', deleteNews);
+router.delete('/delete/:id', uploadNews.single('imagen'), deleteNews);
 
 export default router;

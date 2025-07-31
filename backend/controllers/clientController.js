@@ -2,13 +2,18 @@ import { ClientModel } from "../models/index.js";
 
 export const getClients = async (req, res) => {
     try {
-        const clients = await ClientModel.findAll();
+        const clients = await ClientModel.findAndCountAll();
+        const totalMiembros = await ClientModel.sum('numeroMiembros');
 
         if(!clients) {
             return res.status(404).json({message: 'No hay clientes para mostrar'});
         }
 
-        return res.status(200).json({ message: 'Clientes obtenidos exitosamente', data: clients });
+        return res.status(200).json({ 
+            message: 'Clientes obtenidos exitosamente', 
+            rows: clients.rows,
+            count: clients.count,
+            totalMiembros });
     } catch(error) {
         res.status(500).json({error: 'Error interno del sistema'});
     }
@@ -31,7 +36,7 @@ export const getOneClient = async (req, res) => {
 
 export const createNewClient = async (req, res) => {
     
-    const { name, activity, address, locality, phoneNumber, email, logo } = req.body;
+    const { name, activity, address, locality, phoneNumber, email, logo, memberNumber, testimonio } = req.body;
 console.log('body cliente', address);
     try{
         const newClient = await ClientModel.create({
@@ -41,7 +46,9 @@ console.log('body cliente', address);
             locality,
             telefono: phoneNumber,
             email,
-            logo
+            logo,
+            numeroMiembros: memberNumber,
+            testimonio
         })
 
         res.status(200).json({ message: 'Nuevo cliente creado exitosamente', data: newClient});
@@ -52,7 +59,7 @@ console.log('body cliente', address);
 }
 
 export const editClient = async (req, res) => {
-    const { name, activity, address, locality, phoneNumber, email, logo } = req.body;
+    const { name, activity, address, locality, phoneNumber, email, logo, memberNumber, testimonio } = req.body;
     console.log("dirección body", address);
     const { id } = req.params;
 
@@ -69,7 +76,9 @@ export const editClient = async (req, res) => {
             locality: locality || existingClient.locality,
             telefono: phoneNumber || existingClient.phoneNumber,
             email: email || existingClient.email,
-            logo: logo || existingClient.logo
+            logo: logo || existingClient.logo,
+            numeroMiembros: memberNumber || existingClient.memberNumber,
+            testimonio: testimonio || existingClient.testimonio
         })
         res.status(201).json({message: 'Cliente modificado exitosamente', data: updateClient});
     } catch(error) {

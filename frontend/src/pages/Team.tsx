@@ -60,7 +60,8 @@ const Team = () => {
                 <div className="md:flex">
                   <div className="md:w-1/3">
                     <img
-                      src={member.foto}
+                      src={`http://localhost:3000/public/${member.foto}`}
+
                       alt={member.nombre}
                       className="w-full h-64 md:h-full object-cover"
                     />
@@ -163,14 +164,10 @@ const Team = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Experiencia Colectiva
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="text-4xl md:text-5xl font-bold text-white mb-2">95+</div>
               <div className="text-orange-100">Años de Experiencia Combinada</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2">500+</div>
-              <div className="text-orange-100">Casos Exitosos</div>
             </div>
             <div>
               <div className="text-4xl md:text-5xl font-bold text-white mb-2">100+</div>

@@ -42,3 +42,11 @@ CREATE TABLE IF NOT EXISTS clientes (
     logo VARCHAR(255)
 );
 
+CREATE TABLE negociacion_colectiva (
+  id SERIAL PRIMARY KEY,
+  cliente_id INT NOT NULL REFERENCES clientes(id),
+  trabajadores_cubiertos INT,
+  fecha_negociacion DATE
+);
+
+

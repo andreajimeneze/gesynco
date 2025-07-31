@@ -3,6 +3,7 @@ import { User } from './user.js';
 import { News } from './news.js';
 import { Team } from './team.js';
 import { Client } from "./client.js";
+import { Negotiation } from "./negotiation.js";
 import  config  from '../config/config.json' assert {type : 'json' };
 
 const configDb = config.development;
@@ -17,6 +18,7 @@ const UserModel = User(sequelize, DataTypes);
 const NewsModel = News(sequelize, DataTypes);
 const TeamModel = Team(sequelize, DataTypes);
 const ClientModel = Client(sequelize, DataTypes);
+const NegotiationModel = Negotiation(sequelize, DataTypes);
 
 
 export {
@@ -24,5 +26,6 @@ export {
     UserModel,
     NewsModel,
     TeamModel,
-    ClientModel
+    ClientModel,
+    NegotiationModel
 }

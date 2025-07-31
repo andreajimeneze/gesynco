@@ -42,7 +42,7 @@ const Contact = () => {
     {
       icon: Phone,
       title: 'Teléfono',
-      details: '+56 2 2234 5678',
+      details: '+56 9 3468 1809',
       subtitle: 'Lunes a Viernes, 9:00 - 18:00'
     },
     {
@@ -54,8 +54,8 @@ const Contact = () => {
     {
       icon: MapPin,
       title: 'Oficina',
-      details: 'Av. Providencia 1234, Oficina 506',
-      subtitle: 'Providencia, Santiago, Chile'
+      details: 'Oficina 506, Playa Ancha, Valparaíso',
+      subtitle: 'Valparaíso, Chile'
     },
     {
       icon: MessageCircle,
@@ -306,7 +306,7 @@ const Contact = () => {
                 </p>
                 <div className="flex items-center">
                   <Phone className="h-5 w-5 mr-2" />
-                  <span className="font-bold">+56 9 8765 4321</span>
+                  <span className="font-bold">+56 9 3468 1809</span>
                 </div>
                 <p className="text-sm text-orange-100 mt-2">
                   Solo para emergencias laborales graves
@@ -319,7 +319,7 @@ const Contact = () => {
                   <div className="text-center">
                     <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-600">Mapa de Ubicación</p>
-                    <p className="text-sm text-gray-500">Av. Providencia 1234, Oficina 506</p>
+                    <p className="text-sm text-gray-500">Oficina 506, Playa Ancha, Valparaíso</p>
                   </div>
                 </div>
               </div>
