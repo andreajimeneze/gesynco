@@ -8,7 +8,7 @@ const uploadNews = createUploadMiddleware('news');
 router.get('/', getNews);
 router.get('/:id', getOneNews);
 router.post('/create', uploadNews.single('imagen'), createNews);
-router.put('/edit/:id', editNews);
-router.delete('/delete/:id', uploadNews.single('imagen'), deleteNews);
+router.put('/edit/:id', uploadNews.single('imagen'), editNews);
+router.delete('/delete/:id',  deleteNews);
 
 export default router;

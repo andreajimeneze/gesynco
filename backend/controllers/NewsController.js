@@ -1,4 +1,8 @@
 import { NewsModel } from "../models/index.js";
+import fs from "fs";
+import path, { join } from "path";
+import { generarSlug } from "../utils/generarSlug.js";
+import { generateNameFile } from "../utils/generateNameFile.js";
 
 export const getNews = async (req, res) => {
   try {
@@ -28,19 +32,30 @@ export const getOneNews = async (req, res) => {
 };
 
 export const createNews = async (req, res) => {
-  const { text, resume, title, slug, url_image } = req.body;
+  const { text, resume, title, slug } = req.body;
   const currentDate = new Date();
+  const generatedSlug = generarSlug(slug); // usa este mismo en todos lados
+
+  let imagePath = req.file;
+
+  imagePath = generateNameFile(
+    req.file.originalname,
+    req.file.filename,
+    generatedSlug,
+    "news"
+  );
+
   try {
-         
     const newNews = await NewsModel.create({
       titulo: title,
       resumen: resume,
       texto: text,
-      slug,
+      slug: generatedSlug,
       fecha_publicacion: currentDate,
       fecha_edicion: null,
-      url_imagen: req.file ? `/images/news/${req.file?.filename}` : null
+      url_imagen: imagePath,
     });
+
     res
       .status(201)
       .json({ message: "Noticia creada exitosamente", data: newNews });
@@ -51,49 +66,73 @@ export const createNews = async (req, res) => {
 };
 
 export const editNews = async (req, res) => {
-  const { text, resume, title, slug, url_image } = req.body;
-  const currentDate = new Date();
-
   try {
     const { id } = req.params;
+    const { texto, resumen, titulo, slug } = req.body;
     const existingNews = await NewsModel.findByPk(id);
+    const generatedSlug = generarSlug(slug); // usa este mismo en todos lados
 
-    if (existingNews) {
-      const updatedFields = await existingNews.update({
-        titulo: existingNews.title || title,
-        resumen: existingNews.resume || resume,
-        texto: existingNews.text || text,
-        slug: existingNews.slug || slug,
-        url_imagen: existingNews.url_image || url_image,
-        fecha_publicacion: existingNews.fecha_publicacion,
-        fecha_edicion: currentDate,
-      });
+    const imagePath = req.file
+      ? generateNameFile(
+          req.file.originalname,
+          req.file.filename,
+          generatedSlug,
+          "news"
+        )
+      : existingNews.url_imagen;
 
-      if(req.file) {
-        updatedFields.url_imagen = `/images/news/${req.file?.filename}`;
+    if (imagePath != existingNews.url_imagen) {
+      const oldPath = path.join("public", existingNews.url_imagen);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
       }
-
-      const editedNews = await existingNews.update(updatedFields);
-      return res
-        .status(201)
-        .json({ message: "Noticia editada correctamente", data: editedNews });
     }
+
+    if (!existingNews) {
+      return res.status(404).json({ error: "Noticia no encontrada" });
+    }
+
+    const editedNews = await existingNews.update({
+      titulo: titulo || existingNews.titulo,
+      resumen: resumen || existingNews.resumen,
+      texto: texto || existingNews.texto,
+      slug: generatedSlug || existingNews.slug,
+      url_imagen: imagePath || existingNews.url_imagen,
+      fecha_publicacion: existingNews.fecha_publicacion,
+      fecha_edicion: new Date(),
+    });
+
+    return res.status(200).json({
+      message: "Noticia editada correctamente",
+      data: editedNews,
+    });
   } catch (error) {
-    console.error("Error en updateNews", error);
-    res.status(500).json({ error: "Error interno del servidor" });
+    console.error("Error en editNews:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
   }
 };
 
 export const deleteNews = async (req, res) => {
+  console.log("Petición DELETE recibida para noticia id:", req.params.id);
   try {
     const { id } = req.params;
-    const deleteCount = await NewsModel.destroy({ where: { id } });
+    const noticia = await NewsModel.findByPk(id);
 
-    if (deleteCount === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+    if (!noticia) {
+      return res.status(404).json({ error: "Noticia no encontrada" });
     }
 
-    return res.status(200).json({ message: "Usuario eliminado correctamente" });
+    if (noticia.url_imagen) {
+      const imagePath = path.join("public", noticia.url_imagen);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+    console.log(`Intentando eliminar noticia con id: ${id}`);
+
+    await noticia.destroy();
+
+    res.status(200).json({ message: "Noticia eliminada correctamente" });
   } catch (error) {
     res.status(500).json({ error: "Error interno del servidor" });
   }
