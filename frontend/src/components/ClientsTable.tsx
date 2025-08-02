@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Cliente {
     id: number;
@@ -15,7 +15,7 @@ interface Cliente {
 
 const ClientsTable = () => {
     const [clients, setClients] = useState<Cliente[]>([]);
-    const [nuevoCliente, setNuevoCliente] = useState<Omit<Cliente, 'id' | 'logo'>>({
+    const [nuevoCliente, setNuevoCliente] = useState({
         nombre: '',
         actividad_economica: '',
         direccion: '',
@@ -25,15 +25,17 @@ const ClientsTable = () => {
         numeroMiembros: 0,
         testimonio: ''
     });
-    const [logo, setLogo] = useState<string>('');
 
+    const [logo, setLogo] = useState<File | null>(null);
+    const [editId, setEditId] = useState<number | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         const fetchClients = async () => {
             try {
                 const res = await fetch('http://localhost:3000/api/clients');
                 const data = await res.json()
-                
+
                 setClients(data.rows);
             } catch (error) {
                 console.error(error);
@@ -44,39 +46,128 @@ const ClientsTable = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setNuevoCliente(prev => ({...prev, [name]: value }));
+        setNuevoCliente(prev => ({ ...prev, [name]: value }));
     };
 
     const agregarNuevoCliente = async () => {
-        try {
-            const res = await fetch('http://localhost:3000/api/clients', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...nuevoCliente, logo }),
-            });
-            if (!res.ok) throw new Error('Error al guardar cliente');
-            const guardarNuevoCliente = await res.json();
-            setClients(prev => [...prev, guardarNuevoCliente]);
 
-            // Opcional: limpiar formulario
-            setNuevoCliente({
-                nombre: '',
-                actividad_economica: '',
-                direccion: '',
-                locality: '',
-                telefono: '',
-                email: '',
-                numeroMiembros: 0,
-                testimonio: '',
+        const formData = new FormData();
+
+        formData.append('nombre', nuevoCliente.nombre);
+        formData.append('actividad_economica', nuevoCliente.actividad_economica);
+        formData.append('direccion', nuevoCliente.direccion);
+        formData.append('locality', nuevoCliente.locality);
+        formData.append('telefono', nuevoCliente.telefono);
+        formData.append('email', nuevoCliente.email);
+        formData.append('numeroMiembros', String(nuevoCliente.numeroMiembros));
+        formData.append('testimonio', nuevoCliente.testimonio);
+
+        if (logo) {
+            formData.append('logo', logo)
+        }
+
+        try {
+            const res = await fetch('http://localhost:3000/api/clients/create', {
+                method: 'POST',
+                body: formData,
             });
-            setLogo('');
+
+            if (!res.ok) throw new Error('Error al guardar cliente');
+
+            const { data } = await res.json();
+            setClients([...clients, data]);
+            setLogo(null);
+            limpiarFormulario();
         } catch (error) {
             console.error(error);
         }
-
-
     };
 
+    const editarCliente = async () => {
+        if (!confirm('Está seguro de editar a este cliente?')) return;
+
+        if (!editId) return;
+
+        const formData = new FormData();
+
+        formData.append('nombre', nuevoCliente.nombre);
+        formData.append('actividad_economica', nuevoCliente.actividad_economica);
+        formData.append('direccion', nuevoCliente.direccion);
+        formData.append('locality', nuevoCliente.locality);
+        formData.append('telefono', nuevoCliente.telefono);
+        formData.append('email', nuevoCliente.email);
+        formData.append('numeroMiembros', String(nuevoCliente.numeroMiembros));
+        formData.append('testimonio', nuevoCliente.testimonio);
+
+        if (logo) {
+            formData.append('logo', logo)
+        }
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/clients/edit/${editId}`, {
+                method: 'PUT',
+                body: formData
+            })
+
+            if (!res.ok) throw new Error('No se puede editar al cliente');
+            const { data } = await res.json();
+            setClients(clients.map((cli) => (cli.id === editId ? data : cli)));
+            limpiarFormulario();
+        } catch (error) {
+            console.error(error);
+            alert('Error al editar al cliente');
+        }
+    }
+
+    const limpiarFormulario = () => {
+        setNuevoCliente({
+            nombre: '',
+            actividad_economica: '',
+            direccion: '',
+            locality: '',
+            telefono: '',
+            email: '',
+            numeroMiembros: 0,
+            testimonio: ''
+        });
+        setLogo(null);
+        setEditId(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const eliminarCliente = async (id: number) => {
+        if (!confirm('¿Estás seguro de eliminar a este cliente?')) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/clients/delete/${id}`, {
+                method: 'DELETE'
+            })
+
+            if (!res.ok) throw new Error('Error al eliminar al cliente');
+            setClients(clients.filter((cli) => cli.id !== id));
+        } catch (error) {
+            console.error(error);
+            alert('Error al eliminar al cliente');
+        }
+    }
+
+    const cargarFormulario = (cliente: Cliente) => {
+        setEditId(cliente.id);
+        setNuevoCliente({
+            nombre: cliente.nombre,
+            actividad_economica: cliente.actividad_economica,
+            direccion: cliente.direccion,
+            locality: cliente.locality,
+            telefono: cliente.telefono,
+            email: cliente.email,
+            numeroMiembros: cliente.numeroMiembros,
+            testimonio: cliente.testimonio
+        })
+        setLogo(null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     return (
         <div className="p-8 max-w-8xl mx-auto">
@@ -103,8 +194,16 @@ const ClientsTable = () => {
                         className="w-full border p-2 rounded"
                     />
                     <input
+                        type="email"
+                        name="email"
+                        value={nuevoCliente.email}
+                        onChange={handleChange}
+                        placeholder="Email"
+                        className="w-full border p-2 rounded"
+                    />
+                    <input
                         type="text"
-                        name="direccion"
+                        name="dirección"
                         value={nuevoCliente.direccion}
                         onChange={handleChange}
                         placeholder="Dirección"
@@ -118,6 +217,7 @@ const ClientsTable = () => {
                         placeholder="Ciudad"
                         className="w-full border p-2 rounded"
                     />
+                    
                     <input
                         type="text"
                         name="telefono"
@@ -145,25 +245,25 @@ const ClientsTable = () => {
                     <input
                         type="file"
                         accept="image/*"
+                        ref={fileInputRef}
                         className="w-full border p-2 rounded"
-                        onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                    setLogo(reader.result as string); // base64
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        }}
+                        onChange={(e) => setLogo(e.target.files?.[0] || null)}
                     />
-                    <div className='text-center'>
+                    <div className="text-center space-x-2">
                         <button
+                            onClick={editId ? editarCliente : agregarNuevoCliente}
                             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                            onClick={agregarNuevoCliente}
                         >
-                            Guardar Cliente
+                            {editId ? 'Editar Cliente' : 'Agregar Cliente'}
                         </button>
+                        {editId && (
+                            <button
+                                onClick={limpiarFormulario}
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                            >
+                                Cancelar
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -195,17 +295,17 @@ const ClientsTable = () => {
                                     <td className="px-4 py-3">{cliente.telefono}</td>
                                     <td className="px-4 py-3">{cliente.numeroMiembros}</td>
                                     <td className="px-4 py-3 w-[250px]">{cliente.testimonio}</td>
-                                    <td className="px-4 py-3 w-[200px] "><img src={cliente.logo} /></td>
+                                    <td className="px-4 py-3 w-[200px] "><img src={`http://localhost:3000/public/${cliente.logo}`} /></td>
                                     <td className="px-4 py-3 text-center space-x-2">
                                         <button
                                             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                                            onClick={() => alert('Editar próximamente')}
+                                            onClick={() => cargarFormulario(cliente)}
                                         >
                                             Editar
                                         </button>
                                         <button
                                             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                                            onClick={() => alert('Eliminar próximamente')}
+                                            onClick={() => eliminarCliente(cliente.id)}
                                         >
                                             Eliminar
                                         </button>
@@ -220,5 +320,4 @@ const ClientsTable = () => {
         </div >
     )
 }
-
 export default ClientsTable;

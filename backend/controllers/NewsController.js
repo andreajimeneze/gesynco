@@ -70,7 +70,7 @@ export const editNews = async (req, res) => {
     const { id } = req.params;
     const { texto, resumen, titulo, slug } = req.body;
     const existingNews = await NewsModel.findByPk(id);
-    const generatedSlug = generarSlug(slug); // usa este mismo en todos lados
+    const generatedSlug = generarSlug(slug); 
 
     const imagePath = req.file
       ? generateNameFile(
@@ -81,7 +81,7 @@ export const editNews = async (req, res) => {
         )
       : existingNews.url_imagen;
 
-    if (imagePath != existingNews.url_imagen) {
+    if (imagePath !== existingNews.url_imagen) {
       const oldPath = path.join("public", existingNews.url_imagen);
       if (fs.existsSync(oldPath)) {
         fs.unlinkSync(oldPath);
@@ -128,7 +128,7 @@ export const deleteNews = async (req, res) => {
         fs.unlinkSync(imagePath);
       }
     }
-    console.log(`Intentando eliminar noticia con id: ${id}`);
+
 
     await noticia.destroy();
 

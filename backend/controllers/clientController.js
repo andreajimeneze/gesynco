@@ -1,4 +1,8 @@
 import { ClientModel } from "../models/index.js";
+import { generateNameFile } from "../utils/generateNameFile.js";
+import { generarSlug } from "../utils/generarSlug.js";
+import path from 'path';
+import fs from 'fs';
 
 export const getClients = async (req, res) => {
     try {
@@ -36,22 +40,27 @@ export const getOneClient = async (req, res) => {
 
 export const createNewClient = async (req, res) => {
     
-    const { name, activity, address, locality, phoneNumber, email, logo, memberNumber, testimonio } = req.body;
-console.log('body cliente', address);
+    const { nombre, actividad_economica, direccion, locality, telefono, email, numeroMiembros, testimonio } = req.body;
+
+    const nameSlug = generarSlug(nombre);
+    let logoPath = req.file;
+
+    logoPath = generateNameFile(req.file.originalname, req.file.filename, nameSlug, "clients" );
+
     try{
         const newClient = await ClientModel.create({
-            nombre: name,
-            actividad_economica: activity,
-            direccion: address,
+            nombre,
+            actividad_economica,
+            direccion,
             locality,
-            telefono: phoneNumber,
+            telefono,
             email,
-            logo,
-            numeroMiembros: memberNumber,
+            logo: logoPath,
+            numeroMiembros,
             testimonio
         })
 
-        res.status(200).json({ message: 'Nuevo cliente creado exitosamente', data: newClient});
+        res.status(201).json({ message: 'Nuevo cliente creado exitosamente', data: newClient});
     } catch(error) {
         console.error("error al crear cliente", error);
         res.status(500).json({error: 'Error interno del sistema'});
@@ -59,25 +68,35 @@ console.log('body cliente', address);
 }
 
 export const editClient = async (req, res) => {
-    const { name, activity, address, locality, phoneNumber, email, logo, memberNumber, testimonio } = req.body;
-    console.log("dirección body", address);
+    const { nombre, actividad_economica, direccion, locality, telefono, email, numeroMiembros, testimonio } = req.body;
+
     const { id } = req.params;
 
     try {
         const existingClient =  await ClientModel.findByPk(id);
 
+        const nameSlug = generarSlug(nombre);
+
+        const logoPath = req.file ?
+        generateNameFile(
+            req.file.originalname,
+            req.file.filename,
+            nameSlug,
+            "clients"
+        ) : existingClient.logo;
+
         if(!existingClient) {
             return res.status(404).json({ message: 'No se puede modificar cliente porque no existe'});
         }
         const updateClient = await existingClient.update({
-            nombre: name || existingClient.name,
-            actividad_economica: activity || existingClient.activity,
-            direccion: address || existingClient.address,
+            nombre: nombre || existingClient.name,
+            actividad_economica: actividad_economica || existingClient.activity,
+            direccion: direccion || existingClient.address,
             locality: locality || existingClient.locality,
-            telefono: phoneNumber || existingClient.phoneNumber,
+            telefono: telefono || existingClient.phoneNumber,
             email: email || existingClient.email,
-            logo: logo || existingClient.logo,
-            numeroMiembros: memberNumber || existingClient.memberNumber,
+            logo: logoPath || existingClient.logo,
+            numeroMiembros: numeroMiembros || existingClient.memberNumber,
             testimonio: testimonio || existingClient.testimonio
         })
         res.status(201).json({message: 'Cliente modificado exitosamente', data: updateClient});
@@ -85,4 +104,28 @@ export const editClient = async (req, res) => {
         console.error("error al crear cliente", error);
         res.status(500).json({error: 'Error interno del sistema'});
     }
+}
+
+export const eliminarCliente = async (req, res) => {
+    const { id } = req.params;
+
+    const searchingCliente = await ClientModel.findByPk(id);
+    
+try { 
+    if(!searchingCliente) {
+        return res.status(404).json({ error: 'Cliente no existe'});
+    }
+
+  if (searchingCliente.logo) {
+      const logoPath = path.join("public", searchingCliente.logo);
+      if (fs.existsSync(logoPath)) {
+        fs.unlinkSync(logoPath);
+      }
+    }
+    await searchingCliente.destroy();
+    res.status(201).json({message: 'Usuario eliminado correctamente'});
+} catch(error) {
+    console.error('Error al eliminar cliente', error);
+    res.status(500).json({ error: 'Error interno del sistema'});
+}
 }

@@ -124,9 +124,8 @@ const NoticiasTable = () => {
 
   const eliminarNoticia = async (id: number) => {
     if (!confirm('¿Estás seguro de eliminar esta noticia?')) return;
+    
     try {
-
-
       const res = await fetch(`http://localhost:3000/api/news/delete/${id}`, {
         method: 'DELETE',
       });

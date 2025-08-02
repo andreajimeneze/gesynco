@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { getNews, getOneNews, createNews, editNews, deleteNews } from "../controllers/NewsController.js";
+import { getNews, getOneNews, createNews, editNews, deleteNews } from "../controllers/newsController.js";
 import { createUploadMiddleware } from '../middlewares/multer.js';
 
 const uploadNews = createUploadMiddleware('news');
