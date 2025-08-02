@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 
 export const createUploadMiddleware = (folderName) => {
+
   const dir = `public/images/${folderName}`;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-
 interface Noticia {
   id: number;
   titulo: string;
@@ -76,8 +75,7 @@ const NoticiasTable = () => {
 
       const { data } = await res.json();
       setNoticias([...noticias, data]);
-      setForm({ titulo: '', resumen: '', texto: '' });
-      setArchivoImagen(null);
+
       limpiarFormulario();
     } catch (error) {
       console.error(error);
@@ -103,9 +101,7 @@ const NoticiasTable = () => {
     if (archivoImagen) {
       formData.append('imagen', archivoImagen);
     }
-    console.log(form);
-
-    console.log("imagen a cambiar", archivoImagen);
+   
     try {
       const res = await fetch(`http://localhost:3000/api/news/edit/${editId}`, {
         method: 'PUT',
@@ -124,7 +120,7 @@ const NoticiasTable = () => {
 
   const eliminarNoticia = async (id: number) => {
     if (!confirm('¿Estás seguro de eliminar esta noticia?')) return;
-    
+
     try {
       const res = await fetch(`http://localhost:3000/api/news/delete/${id}`, {
         method: 'DELETE',
@@ -158,9 +154,7 @@ const NoticiasTable = () => {
   }
 
 
-
-
-  return (
+return (
     <div className="p-8 max-w-8xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Gestión de Noticias</h1>
 

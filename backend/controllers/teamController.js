@@ -1,4 +1,6 @@
 import { TeamModel } from "../models/index.js";
+import path from 'path';
+import fs from 'fs';
 import { generarSlug } from "../utils/generarSlug.js";
 import { generateNameFile } from "../utils/generateNameFile.js";
 
@@ -41,11 +43,13 @@ export const getMember = async (req, res) => {
 export const createNewMember = async (req, res) => {
   const { nombre, apellido, email, profesion, experiencia, estado } = req.body;
 
-  const nameSlug = generarSlug(nombre);
-  const fotoPath = req.file;
+  const firstnameSlug = generarSlug(nombre);
+  const lastname = generarSlug(apellido);
+  const nameSlug = `${firstnameSlug}-${lastname}`;
+  let fotoPath = req.file;
 
   fotoPath = generateNameFile(
-    req.file.originalfilename,
+    req.file.originalname,
     req.file.filename,
     nameSlug,
     "team"
@@ -79,16 +83,19 @@ export const editMember = async (req, res) => {
   const existingMember = await TeamModel.findByPk(id);
 
   try {
-    const nameSlug = generarSlug(nombre);
+    const firstnameSlug = generarSlug(nombre);
+    const lastnameSlug = generarSlug(apellido);
+    const nameSlug = `${firstnameSlug}-${lastnameSlug}`;
+    
     const fotoPath = req.file
       ? generateNameFile(
-          req.file.originalfilename,
+          req.file.originalname,
           req.file.filename,
           nameSlug,
           "team"
         )
       : existingMember.foto;
-
+console.log("NOMBRE Y APELLIDO ARCHIVO", fotoPath);
     if (fotoPath !== existingMember.foto) {
       const oldPath = path.join("public", existingMember.foto);
       if (fs.existsSync(oldPath)) {

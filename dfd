@@ -1,0 +1,287 @@
+[1mdiff --git a/backend/controllers/teamController.js b/backend/controllers/teamController.js[m
+[1mindex 2ee0a33..3a3bca9 100644[m
+[1m--- a/backend/controllers/teamController.js[m
+[1m+++ b/backend/controllers/teamController.js[m
+[36m@@ -1,4 +1,5 @@[m
+ import { TeamModel } from "../models/index.js";[m
+[32m+[m[32mimport path from 'path';[m[41m[m
+ import { generarSlug } from "../utils/generarSlug.js";[m
+ import { generateNameFile } from "../utils/generateNameFile.js";[m
+ [m
+[36m@@ -42,15 +43,16 @@[m [mexport const createNewMember = async (req, res) => {[m
+   const { nombre, apellido, email, profesion, experiencia, estado } = req.body;[m
+ [m
+   const nameSlug = generarSlug(nombre);[m
+[31m-  const fotoPath = req.file;[m
+[32m+[m[32m  let fotoPath = req.file;[m[41m[m
+ [m
+   fotoPath = generateNameFile([m
+[31m-    req.file.originalfilename,[m
+[32m+[m[32m    req.file.originalname,[m[41m[m
+     req.file.filename,[m
+     nameSlug,[m
+     "team"[m
+   );[m
+[31m-[m
+[32m+[m[32mconsole.log("foto con ruta", fotoPath);[m[41m[m
+[32m+[m[32mconsole.log("req filename DESPUÉS", req.file.filename);[m[41m[m
+   try {[m
+     const newMember = await TeamModel.create({[m
+       nombre,[m
+[1mdiff --git a/backend/middlewares/multer.js b/backend/middlewares/multer.js[m
+[1mindex d7e4deb..986bdfe 100644[m
+[1m--- a/backend/middlewares/multer.js[m
+[1m+++ b/backend/middlewares/multer.js[m
+[36m@@ -3,6 +3,7 @@[m [mimport path from "path";[m
+ import fs from "fs";[m
+ [m
+ export const createUploadMiddleware = (folderName) => {[m
+[32m+[m[41m[m
+   const dir = `public/images/${folderName}`;[m
+   if (!fs.existsSync(dir)) {[m
+     fs.mkdirSync(dir, { recursive: true });[m
+[1mdiff --git a/frontend/src/components/ClientsTable.tsx b/frontend/src/components/ClientsTable.tsx[m
+[1mindex 8c4a5f9..34c013f 100644[m
+[1m--- a/frontend/src/components/ClientsTable.tsx[m
+[1m+++ b/frontend/src/components/ClientsTable.tsx[m
+[36m@@ -76,7 +76,7 @@[m [mconst ClientsTable = () => {[m
+ [m
+             const { data } = await res.json();[m
+             setClients([...clients, data]);[m
+[31m-            setLogo(null);[m
+[32m+[m[41m            [m
+             limpiarFormulario();[m
+         } catch (error) {[m
+             console.error(error);[m
+[1mdiff --git a/frontend/src/components/MembersTable.tsx b/frontend/src/components/MembersTable.tsx[m
+[1mindex de812fd..369d3cc 100644[m
+[1m--- a/frontend/src/components/MembersTable.tsx[m
+[1m+++ b/frontend/src/components/MembersTable.tsx[m
+[36m@@ -14,7 +14,15 @@[m [minterface Equipo {[m
+ const MembersTable = () => {[m
+ [m
+     const [equipo, setEquipo] = useState<Equipo[]>([]);[m
+[31m-    //const [nuevoEquipo, setNuevoEquipo] = useState([]);[m
+[32m+[m[32m    const [miembro, setMiembro] = useState({[m[41m[m
+[32m+[m[32m        nombre: '',[m[41m[m
+[32m+[m[32m        apellido: '',[m[41m[m
+[32m+[m[32m        email: '',[m[41m[m
+[32m+[m[32m        profesion: '',[m[41m[m
+[32m+[m[32m        experiencia: '',[m[41m[m
+[32m+[m[32m        estado: ''[m[41m[m
+[32m+[m[32m    });[m[41m[m
+[32m+[m[32m    const [foto, setFoto] = useState<File | null>(null);[m[41m[m
+ [m
+     useEffect(() => {[m
+         const fetchTeam = async () => {[m
+[36m@@ -27,10 +35,56 @@[m [mconst MembersTable = () => {[m
+             }[m
+         }[m
+         fetchTeam();[m
+[31m-    })[m
+[32m+[m[32m    }, [])[m[41m[m
+ [m
+[32m+[m[32m    const agregarMiembro = async () => {[m[41m[m
+[32m+[m[32m        const formData = new FormData();[m[41m[m
+ [m
+[32m+[m[32m        formData.append('nombre', miembro.nombre);[m[41m[m
+[32m+[m[32m        formData.append('apellido', miembro.apellido);[m[41m[m
+[32m+[m[32m        formData.append('email', miembro.email);[m[41m[m
+[32m+[m[32m        formData.append('profesion', miembro.profesion);[m[41m[m
+[32m+[m[32m        formData.append('estado', miembro.estado);[m[41m[m
+ [m
+[32m+[m[32m        if (foto) {[m[41m[m
+[32m+[m[32m            formData.append('foto', foto);[m[41m[m
+[32m+[m[32m        }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        try {[m[41m[m
+[32m+[m[32m            const res = await fetch('http://localhost:3000/api/team/create', {[m[41m[m
+[32m+[m[32m                method: 'POST',[m[41m[m
+[32m+[m[32m                body: formData[m[41m[m
+[32m+[m[32m            })[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            if (!res.ok) {[m[41m[m
+[32m+[m[32m                throw new Error('No se pudo agregar un nuevo miembro al equipo');[m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            const { data } = await res.json();[m[41m[m
+[32m+[m[32m            setEquipo([...equipo, data]);[m[41m[m
+[32m+[m[32m            setMiembro({[m[41m[m
+[32m+[m[32m                nombre: '',[m[41m[m
+[32m+[m[32m                apellido: '',[m[41m[m
+[32m+[m[32m                email: '',[m[41m[m
+[32m+[m[32m                profesion: '',[m[41m[m
+[32m+[m[32m                experiencia: '',[m[41m[m
+[32m+[m[32m                estado: ''[m[41m[m
+[32m+[m[32m            })[m[41m[m
+[32m+[m[32m            setFoto(null);[m[41m[m
+[32m+[m[32m        } catch (error) {[m[41m[m
+[32m+[m[32m            console.error(error);[m[41m[m
+[32m+[m[32m            alert('Error al guardar al miembro del equipo');[m[41m[m
+[32m+[m[32m        }[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    const eliminarMiembro = async (id:number) => {[m[41m[m
+[32m+[m[32m        try {[m[41m[m
+[32m+[m[32m            const res = await fetch(`http://localhost:3000/api/team/delete/${id}`, {[m[41m[m
+[32m+[m[32m                method: 'DELETE',[m[41m[m
+[32m+[m[32m                body: formData[m[41m[m
+[32m+[m[32m            })[m[41m[m
+[32m+[m[32m        }[m[41m[m
+[32m+[m[32m    }[m[41m[m
+ [m
+     return ([m
+         <div className="p-8 max-w-8xl mx-auto">[m
+[36m@@ -43,38 +97,52 @@[m [mconst MembersTable = () => {[m
+                     <input[m
+                         type="text"[m
+                         placeholder="Nombre"[m
+[32m+[m[32m                        value={miembro.nombre}[m[41m[m
+[32m+[m[32m                        onChange={(e) => setMiembro({ ...miembro, nombre: e.target.value })}[m[41m[m
+                         className="w-full border p-2 rounded"[m
+                     />[m
+                     <input[m
+                         type="text"[m
+                         placeholder="Apellido"[m
+[32m+[m[32m                        value={miembro.apellido}[m[41m[m
+[32m+[m[32m                        onChange={(e) => setMiembro({ ...miembro, apellido: e.target.value })}[m[41m[m
+                         className="w-full border p-2 rounded"[m
+                     />[m
+                     <input[m
+                         type="text"[m
+                         placeholder="Profesión"[m
+[32m+[m[32m                        value={miembro.profesion}[m[41m[m
+[32m+[m[32m                        onChange={(e) => setMiembro({ ...miembro, profesion: e.target.value })}[m[41m[m
+                         className="w-full border p-2 rounded"[m
+                     />[m
+                     <input[m
+                         type="email"[m
+                         placeholder="Email"[m
+[32m+[m[32m                        value={miembro.email}[m[41m[m
+[32m+[m[32m                        onChange={(e) => setMiembro({ ...miembro, email: e.target.value })}[m[41m[m
+                         className="w-full border p-2 rounded"[m
+                     />[m
+                     <textarea[m
+                         placeholder="Experiencia"[m
+[32m+[m[32m                        value={miembro.experiencia}[m[41m[m
+[32m+[m[32m                        onChange={(e) => setMiembro({ ...miembro, experiencia: e.target.value })}[m[41m[m
+                         className="w-full border p-2 rounded"[m
+                         rows={4}[m
+                     />[m
+                     <input[m
+                         type="file"[m
+                         accept="image/*"[m
+[32m+[m[32m                        onChange={(e) => setFoto(e.target.files?.[0] || null)}[m[41m[m
+                         className="w-full border p-2 rounded"[m
+                     />[m
+[31m-                    <select>[m
+[32m+[m[32m                    <select value={miembro.estado}[m[41m[m
+[32m+[m[32m                        onChange={(e) => setMiembro({ ...miembro, estado: e.target.value })}>[m[41m[m
+                         <option>Selecciones un estado</option>[m
+[32m+[m[32m                        <option value='activo'>Activo</option>[m[41m[m
+[32m+[m[32m                        <option value='inactivo'>Inactivo</option>[m[41m[m
+                     </select>[m
+                     <div className='text-center'>[m
+[31m-                        <button[m
+[32m+[m[32m                        <button onClick={agregarMiembro}[m[41m[m
+                             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"[m
+                         >[m
+                             Guardar Profesional[m
+[36m@@ -97,31 +165,31 @@[m [mconst MembersTable = () => {[m
+                         </tr>[m
+                     </thead>[m
+                     <tbody>[m
+[31m-                        {equipo.map((miembro) => ( [m
+[31m-                        <tr key={miembro.id} className="border-t">[m
+[31m-                            <td className="px-4 py-3">{miembro.nombre}</td>[m
+[31m-                            <td className="px-4 py-3">{miembro.apellido}</td>[m
+[31m-                            <td className="px-4 py-3">{miembro.email}</td>[m
+[31m-                            <td className="px-4 py-3">{miembro.profesion}</td>[m
+[31m-                            <td className="px-4 py-3 w-[250px]">{miembro.experiencia}</td>[m
+[31m-                            <td className="px-4 py-3 w-[200px] "><img src={miembro.foto} /></td>[m
+[31m-                            <td className="px-4 py-3">{miembro.estado}</td>[m
+[31m-                            <td className="px-4 py-3 text-center space-x-2">[m
+[31m-                                <button[m
+[31m-                                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"[m
+[31m-                                    onClick={() => alert('Editar próximamente')}[m
+[31m-                                >[m
+[31m-                                    Editar[m
+[31m-                                </button>[m
+[31m-                                <button[m
+[31m-                                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"[m
+[31m-                                    onClick={() => alert('Eliminar próximamente')}[m
+[31m-                                >[m
+[31m-                                    Eliminar[m
+[31m-                                </button>[m
+[31m-                            </td>[m
+[31m-                        </tr>[m
+[31m-                       )) }[m
+[32m+[m[32m                        {equipo.map((miembro) => ([m[41m[m
+[32m+[m[32m                            <tr key={miembro.id} className="border-t">[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3">{miembro.nombre}</td>[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3">{miembro.apellido}</td>[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3">{miembro.email}</td>[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3">{miembro.profesion}</td>[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3 w-[250px]">{miembro.experiencia}</td>[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3 w-[200px] "><img src={`http://localhost:3000/public/${miembro.foto}`} /></td>[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3">{miembro.estado}</td>[m[41m[m
+[32m+[m[32m                                <td className="px-4 py-3 text-center space-x-2">[m[41m[m
+[32m+[m[32m                                    <button[m[41m[m
+[32m+[m[32m                                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"[m[41m[m
+[32m+[m[32m                                        onClick={() => alert('Editar próximamente')}[m[41m[m
+[32m+[m[32m                                    >[m[41m[m
+[32m+[m[32m                                        Editar[m[41m[m
+[32m+[m[32m                                    </button>[m[41m[m
+[32m+[m[32m                                    <button[m[41m[m
+[32m+[m[32m                                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"[m[41m[m
+[32m+[m[32m                                        onClick={() => alert('Eliminar próximamente')}[m[41m[m
+[32m+[m[32m                                    >[m[41m[m
+[32m+[m[32m                                        Eliminar[m[41m[m
+[32m+[m[32m                                    </button>[m[41m[m
+[32m+[m[32m                                </td>[m[41m[m
+[32m+[m[32m                            </tr>[m[41m[m
+[32m+[m[32m                        ))}[m[41m[m
+                     </tbody>[m
+                 </table>[m
+ [m
+[1mdiff --git a/frontend/src/components/NewsTable.tsx b/frontend/src/components/NewsTable.tsx[m
+[1mindex 2c58fd3..c8c2d02 100644[m
+[1m--- a/frontend/src/components/NewsTable.tsx[m
+[1m+++ b/frontend/src/components/NewsTable.tsx[m
+[36m@@ -1,6 +1,5 @@[m
+ import { useEffect, useRef, useState } from 'react';[m
+ [m
+[31m-[m
+ interface Noticia {[m
+   id: number;[m
+   titulo: string;[m
+[36m@@ -76,8 +75,7 @@[m [mconst NoticiasTable = () => {[m
+ [m
+       const { data } = await res.json();[m
+       setNoticias([...noticias, data]);[m
+[31m-      setForm({ titulo: '', resumen: '', texto: '' });[m
+[31m-      setArchivoImagen(null);[m
+[32m+[m[41m[m
+       limpiarFormulario();[m
+     } catch (error) {[m
+       console.error(error);[m
+[36m@@ -124,7 +122,7 @@[m [mconst NoticiasTable = () => {[m
+ [m
+   const eliminarNoticia = async (id: number) => {[m
+     if (!confirm('¿Estás seguro de eliminar esta noticia?')) return;[m
+[31m-    [m
+[32m+[m[41m[m
+     try {[m
+       const res = await fetch(`http://localhost:3000/api/news/delete/${id}`, {[m
+         method: 'DELETE',[m
+[36m@@ -158,9 +156,7 @@[m [mconst NoticiasTable = () => {[m
+   }[m
+ [m
+ [m
+[31m-[m
+[31m-[m
+[31m-  return ([m
+[32m+[m[32mreturn ([m[41m[m
+     <div className="p-8 max-w-8xl mx-auto">[m
+       <h1 className="text-3xl font-bold mb-6 text-gray-800">Gestión de Noticias</h1>[m
+ [m

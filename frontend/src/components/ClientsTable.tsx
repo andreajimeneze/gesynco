@@ -76,7 +76,7 @@ const ClientsTable = () => {
 
             const { data } = await res.json();
             setClients([...clients, data]);
-            setLogo(null);
+
             limpiarFormulario();
         } catch (error) {
             console.error(error);
@@ -119,24 +119,6 @@ const ClientsTable = () => {
         }
     }
 
-    const limpiarFormulario = () => {
-        setNuevoCliente({
-            nombre: '',
-            actividad_economica: '',
-            direccion: '',
-            locality: '',
-            telefono: '',
-            email: '',
-            numeroMiembros: 0,
-            testimonio: ''
-        });
-        setLogo(null);
-        setEditId(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
-
     const eliminarCliente = async (id: number) => {
         if (!confirm('¿Estás seguro de eliminar a este cliente?')) return;
 
@@ -168,6 +150,24 @@ const ClientsTable = () => {
         setLogo(null);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    
+    const limpiarFormulario = () => {
+        setNuevoCliente({
+            nombre: '',
+            actividad_economica: '',
+            direccion: '',
+            locality: '',
+            telefono: '',
+            email: '',
+            numeroMiembros: 0,
+            testimonio: ''
+        });
+        setLogo(null);
+        setEditId(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
 
     return (
         <div className="p-8 max-w-8xl mx-auto">
@@ -217,7 +217,7 @@ const ClientsTable = () => {
                         placeholder="Ciudad"
                         className="w-full border p-2 rounded"
                     />
-                    
+
                     <input
                         type="text"
                         name="telefono"
